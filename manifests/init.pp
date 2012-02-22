@@ -10,24 +10,35 @@
 #
 # $cle_tarball_url:: The URL to the tarball containing CLE
 #
+# $cle_tarball_path:: The path to the tarball containing CLE (optional, disables cle_tarball_url if defined)
+#
 # == Example Usage:
 #
 # class { 'cle':
 #     cle_tarball_url => 'http://my.org/sakai/cle/releases/2-8-x.tgz,
+#     user => 'sakaicle',
+# }
+#
+# class { 'cle':
+#     # THe tarball was delivered by the base image or deployment system
+#     cle_tarball_path => '/files-cle/releases/2-8-x.tgz,
+#     user => 'sakaicle',
 # }
 #
 class cle (
     $basedir = "/usr/local",
     $user    = "sakaioae",
-    $cle_tarball_url = "http://youforgot.to.configure/the/tarball/url.tgz"
+    $cle_tarball_url = "http://youforgot.to.configure/the/tarball/url.tgz",
+    $cle_tarball_path = undef
     ){
-    
-    $cle_basedir = "${basedir}/cle"
-    
+
     exec { 'fetch-cle-tarball':
         user => $cle_user,
         cwd  => $basedir,
-        command => "curl -O cle-tarball.tgz ${cle_tarball_url}",
+        command => $cle_tarball_path ? {
+            undef   => "curl -O cle-tarball.tgz ${cle_tarball_url}",
+            default => "cp ${cle_tarball_path} .",
+        },
         creates => "${basedir}/cle-tarball.tgz",
     }
 
