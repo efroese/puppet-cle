@@ -36,11 +36,23 @@
 # }
 #
 class cle (
-    $basedir = "/usr/local",
-    $user    = "sakaioae",
-    $cle_tarball_url = "http://youforgot.to.configure/the/tarball/url.tgz",
-    $cle_tarball_path = undef
+    $basedir                      = "/usr/local/sakaicle",
+    $user                         = "sakaioae",
+    $cle_tarball_url              = "http://youforgot.to.configure/the/tarball/url.tgz",
+    $cle_tarball_path             = undef,
+    $sakai_properties_template    = undef,
+    $local_properties_template    = undef,
+    $instance_properties_template = undef,
+    $linktool_salt                = undef,
+    $linktool_privkey             = undef
     ){
+
+    if !defined(File[$basedir]) {
+        file { $basedir:
+            ensure => directory,
+            owner  => $user,
+        }
+    }
 
     exec { 'fetch-cle-tarball':
         user => $cle_user,
@@ -71,28 +83,38 @@ class cle (
         owner => $user,
         group => $user,
         mode  => 0644,
-        content => template($local_properties_template),
+        content => $instance_properties_template ? {
+            undef   => '# managed by puppet. \$local_properties_template not specified',
+            default => template($instance_properties_template),
+        },
     }
 
     file { "${basedir}/cle/tomcat/sakai/instance.properties":
         owner => $user,
         group => $user,
         mode  => 0644,
-        content => template($instance_properties_template),
+        content => $local_properties_template ? {
+            undef   => '# managed by puppet. \$instance_properties_template not specified',
+            default => template($local_properties_template),
+        },
     }
 
-    file { "${basedir}/cle/tomcat/sakai/sakai.rutgers.linktool.privkey":
-        owner => $user,
-        group => $user,
-        mode  => 0644,
-        content => $linktool_privkey,
+    if $linktool_privkey != undef {
+        file { "${basedir}/cle/tomcat/sakai/sakai.rutgers.linktool.privkey":
+            owner => $user,
+            group => $user,
+            mode  => 0644,
+            content => $linktool_privkey,
+        }
     }
 
-    file { "${basedir}/cle/tomcat/sakai/sakai.rutgers.linktool.salt":
-        owner => $user,
-        group => $user,
-        mode  => 0644,
-        content => $linktool_salt,
+    if $linktool_salt != undef {
+        file { "${basedir}/cle/tomcat/sakai/sakai.rutgers.linktool.salt":
+            owner => $user,
+            group => $user,
+            mode  => 0644,
+            content => $linktool_salt,
+        }
     }
 
     file { '/etc/init.d/sakaicle':
