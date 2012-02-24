@@ -25,20 +25,20 @@
 # == Example Usage:
 #
 # class { 'cle':
-#     cle_tarball_url => 'http://my.org/sakai/cle/releases/2-8-x.tgz,
+#     cle_tarball_url => 'http://my.org/sakai/cle/releases/2-8-x.tbz,
 #     user => 'sakaicle',
 # }
 #
 # class { 'cle':
 #     # THe tarball was delivered by the base image or deployment system
-#     cle_tarball_path => '/files-cle/releases/2-8-x.tgz,
+#     cle_tarball_path => '/files-cle/releases/2-8-x.tbz,
 #     user => 'sakaicle',
 # }
 #
 class cle (
     $basedir                      = "/usr/local/sakaicle",
     $user                         = "sakaioae",
-    $cle_tarball_url              = "http://youforgot.to.configure/the/tarball/url.tgz",
+    $cle_tarball_url              = "http://youforgot.to.configure/the/tarball/url.tbz",
     $cle_tarball_path             = undef,
     $sakai_properties_template    = undef,
     $local_properties_template    = undef,
@@ -67,7 +67,7 @@ class cle (
     exec { 'unpack-cle-tarball':
         user => $cle_user,
         cwd  => $basedir,
-        command => "tar xzvf cle-tarball.tgz",
+        command => "tar xjvf cle-tarball.tgz",
         creates => "${basedir}/cle",
         require => Exec['fetch-cle-tarball'],
     }
@@ -123,7 +123,7 @@ class cle (
     }
 
     service { 'sakaicle':
-        enabled => true,
+        enable  => true,
         ensure  => running,
         require => File['/etc/init.d/sakaicle']
     }
