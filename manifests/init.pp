@@ -73,6 +73,12 @@ class cle (
         require => Exec['fetch-cle-tarball'],
     }
 
+    file { "${tomcat_home}/sakai":
+        ensure => directory,
+        owner  => $user,
+        require => Exec['unpack-cle-tarball'],
+    }
+
     file { "${tomcat_home}/sakai/sakai.properties":
         owner => $user,
         group => $user,
