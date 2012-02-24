@@ -62,6 +62,7 @@ class cle (
             default => "cp ${cle_tarball_path} .",
         },
         creates => "${basedir}/cle-tarball.tgz",
+        timeout => 0,
     }
 
     exec { 'unpack-cle-tarball':
