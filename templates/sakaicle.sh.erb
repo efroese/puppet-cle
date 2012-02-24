@@ -7,8 +7,8 @@
 # --> check
 
 # set this to the location of tomcat 
-TOMCAT_HOME=<% scope.lookupvar('cle::basedir') %>/cle/tomcat
-TOMCAT_USER=<% scope.lookupvar('cle::user') %>
+TOMCAT_HOME=<%= scope.lookupvar('cle::tomcat_home') %>/cle/tomcat
+TOMCAT_USER=<%= scope.lookupvar('cle::user') %>
 
 ulimit -n 8192
 
