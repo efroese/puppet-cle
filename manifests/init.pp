@@ -56,19 +56,18 @@ class cle (
 
     exec { 'fetch-cle-tarball':
         user => $cle_user,
-        cwd  => $basedir,
         command => $cle_tarball_path ? {
-            undef   => "curl -O cle-tarball.tgz ${cle_tarball_url}",
+            undef   => "curl -O ${$basedir}/cle-tarball.tbz ${cle_tarball_url}",
             default => "cp ${cle_tarball_path} .",
         },
-        creates => "${basedir}/cle-tarball.tgz",
+        creates => "${basedir}/cle-tarball.tbz",
         timeout => 0,
     }
 
     exec { 'unpack-cle-tarball':
         user => $cle_user,
         cwd  => $basedir,
-        command => "tar xjvf cle-tarball.tgz",
+        command => "tar xjvf cle-tarball.tbz",
         creates => "${basedir}/cle",
         require => Exec['fetch-cle-tarball'],
     }
