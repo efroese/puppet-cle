@@ -57,7 +57,7 @@ class cle (
     exec { 'fetch-cle-tarball':
         user => $cle_user,
         command => $cle_tarball_path ? {
-            undef   => "curl -O ${$basedir}/cle-tarball.tbz ${cle_tarball_url}",
+            undef   => "curl -o ${$basedir}/cle-tarball.tbz ${cle_tarball_url}",
             default => "cp ${cle_tarball_path} .",
         },
         creates => "${basedir}/cle-tarball.tbz",
