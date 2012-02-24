@@ -77,6 +77,7 @@ class cle (
         group => $user,
         mode  => 0644,
         content => template($sakai_properties_template),
+        require => Exec['unpack-cle-tarball'],
     }
 
     file { "${basedir}/cle/tomcat/sakai/local.properties":
@@ -87,6 +88,7 @@ class cle (
             undef   => '# managed by puppet. \$local_properties_template not specified',
             default => template($instance_properties_template),
         },
+        require => Exec['unpack-cle-tarball'],
     }
 
     file { "${basedir}/cle/tomcat/sakai/instance.properties":
@@ -97,6 +99,7 @@ class cle (
             undef   => '# managed by puppet. \$instance_properties_template not specified',
             default => template($local_properties_template),
         },
+        require => Exec['unpack-cle-tarball'],
     }
 
     if $linktool_privkey != undef {
@@ -105,6 +108,7 @@ class cle (
             group => $user,
             mode  => 0644,
             content => $linktool_privkey,
+            require => Exec['unpack-cle-tarball'],
         }
     }
 
@@ -114,6 +118,7 @@ class cle (
             group => $user,
             mode  => 0644,
             content => $linktool_salt,
+            require => Exec['unpack-cle-tarball'],
         }
     }
 
@@ -125,6 +130,6 @@ class cle (
     service { 'sakaicle':
         enable  => true,
         ensure  => running,
-        require => File['/etc/init.d/sakaicle']
+        require => [ File['/etc/init.d/sakaicle'],  File["${basedir}/cle/tomcat/sakai/sakai.properties"], ],
     }
 }
