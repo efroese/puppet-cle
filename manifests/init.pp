@@ -37,6 +37,7 @@
 #
 class cle (
     $basedir                      = "/usr/local/sakaicle",
+    $tomcat_home                  = "/usr/local/sakaicle/tomcat",
     $user                         = "sakaioae",
     $cle_tarball_url              = "http://youforgot.to.configure/the/tarball/url.tbz",
     $cle_tarball_path             = undef,
@@ -66,13 +67,13 @@ class cle (
 
     exec { 'unpack-cle-tarball':
         user => $cle_user,
-        cwd  => $basedir,
-        command => "tar xjvf cle-tarball.tbz",
-        creates => "${basedir}/cle",
+        cwd  => $tomcat_home,
+        command => "tar xjvf ../cle-tarball.tbz",
+        creates => "${tomcat_home}/webapps/sakai-chat-tool.war",
         require => Exec['fetch-cle-tarball'],
     }
 
-    file { "${basedir}/cle/tomcat/sakai/sakai.properties":
+    file { "${tomcat_home}/sakai/sakai.properties":
         owner => $user,
         group => $user,
         mode  => 0644,
@@ -80,7 +81,7 @@ class cle (
         require => Exec['unpack-cle-tarball'],
     }
 
-    file { "${basedir}/cle/tomcat/sakai/local.properties":
+    file { "${tomcat_home}/sakai/local.properties":
         owner => $user,
         group => $user,
         mode  => 0644,
@@ -91,7 +92,7 @@ class cle (
         require => Exec['unpack-cle-tarball'],
     }
 
-    file { "${basedir}/cle/tomcat/sakai/instance.properties":
+    file { "${tomcat_home}/sakai/instance.properties":
         owner => $user,
         group => $user,
         mode  => 0644,
