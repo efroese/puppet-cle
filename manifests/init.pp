@@ -131,6 +131,6 @@ class cle (
     service { 'sakaicle':
         enable  => true,
         ensure  => running,
-        require => [ File['/etc/init.d/sakaicle'],  File["${basedir}/cle/tomcat/sakai/sakai.properties"], ],
+        require => [ File['/etc/init.d/sakaicle'],  File["${tomcat_home}/sakai/sakai.properties"], ],
     }
 }
