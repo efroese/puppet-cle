@@ -48,6 +48,8 @@ class cle (
     $linktool_privkey             = undef
     ){
 
+    Class['tomcat6'] -> Class['cle']
+
     if !defined(File[$basedir]) {
         file { $basedir:
             ensure => directory,
@@ -71,6 +73,7 @@ class cle (
         command => "tar xjvf ../cle-tarball.tbz",
         creates => "${tomcat_home}/webapps/sakai-chat-tool.war",
         require => Exec['fetch-cle-tarball'],
+        notify  => Service['tomcat'],
     }
 
     file { "${tomcat_home}/sakai":
@@ -85,6 +88,7 @@ class cle (
         mode  => 0644,
         content => template($sakai_properties_template),
         require => Exec['unpack-cle-tarball'],
+        notify  => Service['tomcat'],
     }
 
     file { "${tomcat_home}/sakai/local.properties":
@@ -96,6 +100,7 @@ class cle (
             default => template($instance_properties_template),
         },
         require => Exec['unpack-cle-tarball'],
+        notify  => Service['tomcat'],
     }
 
     file { "${tomcat_home}/sakai/instance.properties":
@@ -107,6 +112,7 @@ class cle (
             default => template($local_properties_template),
         },
         require => Exec['unpack-cle-tarball'],
+        notify  => Service['tomcat'],
     }
 
     if $linktool_privkey != undef {
@@ -116,6 +122,7 @@ class cle (
             mode  => 0644,
             content => $linktool_privkey,
             require => Exec['unpack-cle-tarball'],
+            notify  => Service['tomcat'],
         }
     }
 
@@ -126,17 +133,7 @@ class cle (
             mode  => 0644,
             content => $linktool_salt,
             require => Exec['unpack-cle-tarball'],
+            notify  => Service['tomcat'],
         }
-    }
-
-    file { '/etc/init.d/sakaicle':
-        mode => 0755,
-        content => template('cle/sakaicle.sh.erb'),
-    }
-
-    service { 'sakaicle':
-        enable  => true,
-        ensure  => running,
-        require => [ File['/etc/init.d/sakaicle'],  File["${tomcat_home}/sakai/sakai.properties"], ],
     }
 }
