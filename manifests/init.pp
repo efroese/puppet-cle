@@ -79,7 +79,7 @@ class cle (
     exec { 'unpack-cle-tarball':
         user => $user,
         cwd  => $tomcat_home,
-        command => "tar xjvf ../cle-tarball.tbz",
+        command => "tar xjf ../cle-tarball.tbz",
         creates => "${tomcat_home}/webapps/sakai-chat-tool.war",
         require => Exec['fetch-cle-tarball'],
         notify  => Service['tomcat'],
