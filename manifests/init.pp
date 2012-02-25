@@ -12,6 +12,8 @@
 #
 # $cle_tarball_path:: The path to the tarball containing CLE (optional, disables cle_tarball_url if defined)
 #
+# $server_id:: The sakai server_id
+#
 # $sakai_properties_template:: The path fo the template used to render sakai/sakai.properties (optional)
 #
 # $local_properties_template:: The path fo the template used to render sakai/local.properties (optional)
@@ -30,9 +32,10 @@
 # }
 #
 # class { 'cle':
-#     # THe tarball was delivered by the base image or deployment system
+#     # The tarball was delivered by the base image or deployment system
 #     cle_tarball_path => '/files-cle/releases/2-8-x.tbz,
 #     user => 'sakaicle',
+#     server_id => 'cle0',
 # }
 #
 class cle (
@@ -41,6 +44,7 @@ class cle (
     $user                         = "sakaioae",
     $cle_tarball_url              = "http://youforgot.to.configure/the/tarball/url.tbz",
     $cle_tarball_path             = undef,
+    $server_id                    = 'cle1',
     $sakai_properties_template    = undef,
     $local_properties_template    = undef,
     $instance_properties_template = undef,
@@ -48,13 +52,18 @@ class cle (
     $linktool_privkey             = undef
     ){
 
-    Class['tomcat6'] -> Class['cle']
-
     if !defined(File[$basedir]) {
         file { $basedir:
             ensure => directory,
             owner  => $user,
         }
+    }
+
+    # /usr/local/sakaicle/sakai/
+    $sakaidir = "${basedir}/sakai"
+    file { $sakaidir:
+        ensure => directory,
+        owner  => $user,
     }
 
     exec { 'fetch-cle-tarball':
@@ -76,13 +85,14 @@ class cle (
         notify  => Service['tomcat'],
     }
 
+    # /usr/local/sakaicle/tomcat/sakai -> /usr/local/sakaicle/sakai
     file { "${tomcat_home}/sakai":
-        ensure => directory,
-        owner  => $user,
+        ensure  => link,
+        target  => $sakaidir,
         require => Exec['unpack-cle-tarball'],
     }
 
-    file { "${tomcat_home}/sakai/sakai.properties":
+    file { "${sakaidir}/sakai.properties":
         owner => $user,
         group => $user,
         mode  => 0644,
@@ -91,7 +101,7 @@ class cle (
         notify  => Service['tomcat'],
     }
 
-    file { "${tomcat_home}/sakai/local.properties":
+    file { "${sakaidir}/local.properties":
         owner => $user,
         group => $user,
         mode  => 0644,
@@ -103,7 +113,7 @@ class cle (
         notify  => Service['tomcat'],
     }
 
-    file { "${tomcat_home}/sakai/instance.properties":
+    file { "${sakaidir}/instance.properties":
         owner => $user,
         group => $user,
         mode  => 0644,
@@ -116,7 +126,7 @@ class cle (
     }
 
     if $linktool_privkey != undef {
-        file { "${basedir}/cle/tomcat/sakai/sakai.rutgers.linktool.privkey":
+        file { "${sakaidir}/sakai.rutgers.linktool.privkey":
             owner => $user,
             group => $user,
             mode  => 0644,
@@ -127,7 +137,7 @@ class cle (
     }
 
     if $linktool_salt != undef {
-        file { "${basedir}/cle/tomcat/sakai/sakai.rutgers.linktool.salt":
+        file { "${sakaidir}/sakai.rutgers.linktool.salt":
             owner => $user,
             group => $user,
             mode  => 0644,
