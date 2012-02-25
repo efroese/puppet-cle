@@ -58,7 +58,7 @@ class cle (
     }
 
     exec { 'fetch-cle-tarball':
-        user => $cle_user,
+        user => $user,
         command => $cle_tarball_path ? {
             undef   => "curl -o ${$basedir}/cle-tarball.tbz ${cle_tarball_url}",
             default => "cp ${cle_tarball_path} .",
@@ -68,7 +68,7 @@ class cle (
     }
 
     exec { 'unpack-cle-tarball':
-        user => $cle_user,
+        user => $user,
         cwd  => $tomcat_home,
         command => "tar xjvf ../cle-tarball.tbz",
         creates => "${tomcat_home}/webapps/sakai-chat-tool.war",
