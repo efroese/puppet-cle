@@ -83,6 +83,7 @@ class cle (
         creates => "${tomcat_home}/webapps/sakai-chat-tool.war",
         require => Exec['fetch-cle-tarball'],
         notify  => Service['tomcat'],
+        timeout => 0,
     }
 
     # /usr/local/sakaicle/tomcat/sakai -> /usr/local/sakaicle/sakai
