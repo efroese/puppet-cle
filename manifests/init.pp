@@ -1,24 +1,28 @@
 # = Class: cle
 #
-# Install and start CLE from a tarball..
+# Unpack a tarball over Tomcat to install Sakai CLE
+#
+# == Requires:
+#
+# Module['tomcat6']
 #
 # == Parameters:
 #
-# $basedir:: The directory where cle will be installed.
+# $basedir:: Everything gets installed below this directory.
 #
 # $user:: The user CLE will run as. It will also own the CLE files.
 #
-# $cle_tarball_url:: The URL to the tarball containing CLE
+# $cle_tarball_url:: The URL to the tarball containing the tomcat overlay for CLE
 #
-# $cle_tarball_path:: The path to the tarball containing CLE (optional, disables cle_tarball_url if defined)
+# $cle_tarball_path:: The path to the tarball containing tomcat overlay for CLE (optional, disables cle_tarball_url if defined)
 #
-# $server_id:: The sakai server_id
+# $server_id:: The CLE server_id
 #
-# $sakai_properties_template:: The path fo the template used to render sakai/sakai.properties (optional)
+# $sakai_properties_template:: The path to the template used to render sakai/sakai.properties (optional)
 #
-# $local_properties_template:: The path fo the template used to render sakai/local.properties (optional)
+# $local_properties_template:: The path to the template used to render sakai/local.properties (optional)
 #
-# $instance_properties_template:: The path fo the template used to render sakai/instance.properties (optional)
+# $instance_properties_template:: The path to the template used to render sakai/instance.properties (optional)
 #
 # $linktool_salt:: The salt for the sakai rutgers linktool
 #
@@ -66,8 +70,10 @@ class cle (
         owner  => $user,
     }
 
+    # To avoid this command, create ${basedir}/cle-tarball.tbz before the puppet run.
     exec { 'fetch-cle-tarball':
         user => $user,
+        # Either download or copy the tarball
         command => $cle_tarball_path ? {
             undef   => "curl -o ${$basedir}/cle-tarball.tbz ${cle_tarball_url}",
             default => "cp ${cle_tarball_path} .",
