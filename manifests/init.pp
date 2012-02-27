@@ -87,7 +87,7 @@ class cle (
 
     tomcat6::overlay { 'cle-overlay':
         tomcat_home  => $tomcat_home,
-        tarball_path => $cle_tarball_path,
+        tarball_path => "${basedir}/cle-tarball.tbz",
         creates      => "${tomcat_home}/webapps/sakai-chat-tool.war",
         user         => $user,
         require      => Exec['fetch-cle-tarball'],
