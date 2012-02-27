@@ -85,7 +85,7 @@ class cle (
         timeout => 0,
     }
 
-    tomcat::overlay { 'cle-overlay':
+    tomcat6::overlay { 'cle-overlay':
         tomcat_home  => $tomcat_home,
         tarball_path => $cle_tarball_path,
         creates      => "${tomcat_home}/webapps/sakai-chat-tool.war",
