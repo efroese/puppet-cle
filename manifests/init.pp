@@ -98,7 +98,7 @@ class cle (
     file { "${tomcat_home}/sakai":
         ensure  => link,
         target  => $sakaidir,
-        require => Exec['unpack-cle-tarball'],
+        require => Tomcat6::Overlay['cle-overlay'],
     }
 
     if $configuration_xml_template != undef {
