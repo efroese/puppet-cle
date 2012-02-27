@@ -107,7 +107,7 @@ class cle (
             group => $user,
             mode  => 0644,
             content => template($configuration_xml_template),
-            require => Exec['unpack-cle-tarball'],
+            require => File[$sakaidir],
             notify  => Service['tomcat'],
         }
     }
@@ -117,20 +117,22 @@ class cle (
         group => $user,
         mode  => 0644,
         content => template($sakai_properties_template),
-        require => Exec['unpack-cle-tarball'],
+        require => File[$sakaidir],
         notify  => Service['tomcat'],
     }
 
-    file { "${sakaidir}/local.properties":
-        owner => $user,
-        group => $user,
-        mode  => 0644,
-        content => $instance_properties_template ? {
-            undef   => '# managed by puppet. \$local_properties_template not specified',
-            default => template($instance_properties_template),
-        },
-        require => Exec['unpack-cle-tarball'],
-        notify  => Service['tomcat'],
+    if $local_properties_template != undef {
+        file { "${sakaidir}/local.properties":
+            owner => $user,
+            group => $user,
+            mode  => 0644,
+            content => $local_properties_template ? {
+                undef   => '# managed by puppet. \$local_properties_template not specified',
+                default => template($local_properties_template),
+            },
+            require => File[$sakaidir],
+            notify  => Service['tomcat'],
+        }
     }
 
     if $instance_properties_template != undef {
@@ -138,11 +140,11 @@ class cle (
             owner => $user,
             group => $user,
             mode  => 0644,
-            content => $local_properties_template ? {
+            content => $instance_properties_template ? {
                 undef   => '# managed by puppet. \$instance_properties_template not specified',
-                default => template($local_properties_template),
+                default => template($instance_properties_template),
             },
-            require => Exec['unpack-cle-tarball'],
+            require => File[$sakaidir],
             notify  => Service['tomcat'],
         }
     }
@@ -153,7 +155,7 @@ class cle (
             group => $user,
             mode  => 0644,
             content => $linktool_privkey,
-            require => Exec['unpack-cle-tarball'],
+            require => File[$sakaidir],
             notify  => Service['tomcat'],
         }
     }
@@ -164,7 +166,7 @@ class cle (
             group => $user,
             mode  => 0644,
             content => $linktool_salt,
-            require => Exec['unpack-cle-tarball'],
+            require => File[$sakaidir],
             notify  => Service['tomcat'],
         }
     }
