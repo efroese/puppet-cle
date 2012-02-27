@@ -18,6 +18,8 @@
 #
 # $server_id:: The CLE server_id
 #
+# $configuration_xml_template:: Template used to render sakai/sakai-configuration.xml
+#
 # $sakai_properties_template:: The path to the template used to render sakai/sakai.properties (optional)
 #
 # $local_properties_template:: The path to the template used to render sakai/local.properties (optional)
@@ -49,6 +51,7 @@ class cle (
     $cle_tarball_url              = "http://youforgot.to.configure/the/tarball/url.tbz",
     $cle_tarball_path             = undef,
     $server_id                    = 'cle1',
+    $configuration_xml_template   = undef,
     $sakai_properties_template    = undef,
     $local_properties_template    = undef,
     $instance_properties_template = undef,
@@ -99,6 +102,17 @@ class cle (
         require => Exec['unpack-cle-tarball'],
     }
 
+    if $configuration_xml_template != undef {
+        file { "${sakaidir}/sakai-configuration.xml":
+            owner => $user,
+            group => $user,
+            mode  => 0644,
+            content => template($configuration_xml_template),
+            require => Exec['unpack-cle-tarball'],
+            notify  => Service['tomcat'],
+        }
+    }
+
     file { "${sakaidir}/sakai.properties":
         owner => $user,
         group => $user,
@@ -120,16 +134,18 @@ class cle (
         notify  => Service['tomcat'],
     }
 
-    file { "${sakaidir}/instance.properties":
-        owner => $user,
-        group => $user,
-        mode  => 0644,
-        content => $local_properties_template ? {
-            undef   => '# managed by puppet. \$instance_properties_template not specified',
-            default => template($local_properties_template),
-        },
-        require => Exec['unpack-cle-tarball'],
-        notify  => Service['tomcat'],
+    if $instance_properties_template != undef {
+        file { "${sakaidir}/instance.properties":
+            owner => $user,
+            group => $user,
+            mode  => 0644,
+            content => $local_properties_template ? {
+                undef   => '# managed by puppet. \$instance_properties_template not specified',
+                default => template($local_properties_template),
+            },
+            require => Exec['unpack-cle-tarball'],
+            notify  => Service['tomcat'],
+        }
     }
 
     if $linktool_privkey != undef {
