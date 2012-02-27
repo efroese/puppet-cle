@@ -85,14 +85,13 @@ class cle (
         timeout => 0,
     }
 
-    exec { 'unpack-cle-tarball':
-        user => $user,
-        cwd  => $tomcat_home,
-        command => "tar xjf ../cle-tarball.tbz",
-        creates => "${tomcat_home}/webapps/sakai-chat-tool.war",
-        require => Exec['fetch-cle-tarball'],
-        notify  => Service['tomcat'],
-        timeout => 0,
+    tomcat::overlay { 'cle-overlay':
+        tomcat_home  => $tomcat_home,
+        tarball_path => $cle_tarball_path,
+        creates      => "${tomcat_home}/webapps/sakai-chat-tool.war",
+        user         => $user,
+        require      => Exec['fetch-cle-tarball'],
+        notify       => Service['tomcat'],
     }
 
     # /usr/local/sakaicle/tomcat/sakai -> /usr/local/sakaicle/sakai
