@@ -18,6 +18,12 @@
 #
 # $server_id:: The CLE server_id
 #
+# $db_url:: The CLE database url.
+#
+# $db_user:: The database user CLE will run connect as.
+#
+# $db_password:: The database password CLE will run connect with.
+#
 # $configuration_xml_template:: Template used to render sakai/sakai-configuration.xml
 #
 # $sakai_properties_template:: The path to the template used to render sakai/sakai.properties (optional)
@@ -51,6 +57,9 @@ class cle (
     $cle_tarball_url              = "http://youforgot.to.configure/the/tarball/url.tbz",
     $cle_tarball_path             = undef,
     $server_id                    = 'cle1',
+    $db_url                       = 'configure the cle::db_url',
+    $db_user                      = 'configure the cle::db_user',
+    $db_password                  = 'configure the cle::db_password',
     $configuration_xml_template   = undef,
     $sakai_properties_template    = undef,
     $local_properties_template    = undef,
