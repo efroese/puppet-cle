@@ -1,6 +1,8 @@
 # = Class: cle
 #
-# Unpack a tarball over Tomcat to install Sakai CLE
+# Configure a CLE tomcat instance.
+# To actually install CLE into tomcat you should create a tarball that unpacks cleanly
+# over your tomcat instance and use the tomcat::overlay define.
 #
 # == Requires:
 #
@@ -11,10 +13,6 @@
 # $basedir:: Everything gets installed below this directory.
 #
 # $user:: The user CLE will run as. It will also own the CLE files.
-#
-# $cle_tarball_url:: The URL to the tarball containing the tomcat overlay for CLE
-#
-# $cle_tarball_path:: The path to the tarball containing tomcat overlay for CLE (optional, disables cle_tarball_url if defined)
 #
 # $server_id:: The CLE server_id
 #
@@ -44,18 +42,17 @@
 # }
 #
 # class { 'cle':
-#     # The tarball was delivered by the base image or deployment system
-#     cle_tarball_path => '/files-cle/releases/2-8-x.tbz,
 #     user => 'sakaicle',
 #     server_id => 'cle0',
+#     db_url    => 'jdbc:mysql://loclahost:3306/cle?someparam=1
+#     db_user   => 'cle',
+#     db_passwrd => 'SeeEllEeee',
 # }
 #
 class cle (
     $basedir                      = "/usr/local/sakaicle",
     $tomcat_home                  = "/usr/local/sakaicle/tomcat",
     $user                         = "sakaioae",
-    $cle_tarball_url              = "http://youforgot.to.configure/the/tarball/url.tbz",
-    $cle_tarball_path             = undef,
     $server_id                    = 'cle1',
     $db_url                       = 'configure the cle::db_url',
     $db_user                      = 'configure the cle::db_user',
@@ -82,32 +79,10 @@ class cle (
         owner  => $user,
     }
 
-    # To avoid this command, create ${basedir}/cle-tarball.tbz before the puppet run.
-    exec { 'fetch-cle-tarball':
-        user => $user,
-        # Either download or copy the tarball
-        command => $cle_tarball_path ? {
-            undef   => "curl -o ${$basedir}/cle-tarball.tbz ${cle_tarball_url}",
-            default => "cp ${cle_tarball_path} .",
-        },
-        creates => "${basedir}/cle-tarball.tbz",
-        timeout => 0,
-    }
-
-    tomcat6::overlay { 'cle-overlay':
-        tomcat_home  => $tomcat_home,
-        tarball_path => "${basedir}/cle-tarball.tbz",
-        creates      => "${tomcat_home}/webapps/sakai-chat-tool.war",
-        user         => $user,
-        require      => Exec['fetch-cle-tarball'],
-        notify       => Service['tomcat'],
-    }
-
     # /usr/local/sakaicle/tomcat/sakai -> /usr/local/sakaicle/sakai
     file { "${tomcat_home}/sakai":
         ensure  => link,
         target  => $sakaidir,
-        require => Tomcat6::Overlay['cle-overlay'],
     }
 
     if $configuration_xml_template != undef {
