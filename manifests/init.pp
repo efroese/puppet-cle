@@ -79,6 +79,11 @@ class cle (
         owner  => $user,
     }
 
+    file { '/etc/profile.d/sakaicle.sh':
+        mode => 0755,
+        content => "export CLE_HOME=${basedir}",
+    }
+
     # /usr/local/sakaicle/tomcat/sakai -> /usr/local/sakaicle/sakai
     file { "${tomcat_home}/sakai":
         ensure  => link,
